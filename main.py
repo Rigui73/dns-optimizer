@@ -5,16 +5,19 @@ from pathlib import Path
 
 
 def preguntarFichero():
+    """Pregunta el nombre del archivo que contiene las direcciones IP."""
     fichero = input("Indica el nombre del fichero que contiene los hosts: ")
     return fichero.strip()
 
 
 def preguntarUbicacion():
+    """Pregunta la carpeta donde está guardado el archivo."""
     ubicacion = input("Indica la ubicación del fichero: ")
     return ubicacion.strip()
 
 
 def mostrarFichero(ruta_archivo):
+    """Muestra por pantalla todas las líneas del fichero de IP."""
     ruta = Path(ruta_archivo)
     if not ruta.exists():
         print(f"Error: El archivo en '{ruta}' no existe.")
@@ -38,6 +41,7 @@ def mostrarFichero(ruta_archivo):
 
 
 def hacerPing(ruta_archivo):
+    """Lanza un ping de Windows por cada IP del archivo."""
     ruta = Path(ruta_archivo)
     if not ruta.exists():
         print(f"Error: El archivo en '{ruta}' no existe.")
@@ -67,6 +71,7 @@ def hacerPing(ruta_archivo):
 
 
 def menu1():
+    """Pregunta ubicación y fichero, confirma la ruta y ejecuta el menú 1."""
     fichero = preguntarFichero()
     ubicacion = preguntarUbicacion()
 
@@ -89,6 +94,7 @@ def menu1():
 
 
 def obtenerAdaptadores():
+    """Lee ipconfig /all y devuelve nombre, MAC e IP de cada adaptador."""
     try:
         resultado = subprocess.run(
             ["ipconfig", "/all"],
@@ -150,6 +156,7 @@ def obtenerAdaptadores():
 
 
 def listarMAC():
+    """Muestra MAC y las añade con fecha/hora al archivo CSV."""
     adaptadores = obtenerAdaptadores()
     if len(adaptadores) == 0:
         print("No se encontraron adaptadores de red.")
@@ -175,6 +182,7 @@ def listarMAC():
 
 
 def menu2():
+    """Llama a la función que muestra y guarda las direcciones MAC."""
     listarMAC()
 
 
@@ -229,30 +237,31 @@ def menu3():
     else:
         print("Debes escribir un número.")
 
+while True:
+    print("---------------------------")
+    print("-------DNS OPTIMIZER-------")
+    print("---------------------------\n")
+    print(
+        "1. Mostrar conexiones a host especificos"
+    )  # submenu escoger nombre fichero y ubicacion. (web_<SEMESTRE>.txt)
+    print(
+        "2. Exportar información de Adaptadores de red/MAC"
+    )  # exportar a informacion_local<Apellido1>.csv + fecha + hora creacion
+    print(
+        "3. Listar configuración de 1 adaptador de red"
+    )  # mostrar sub menu para escoger si hay varios y exportar a adaptador<Apellido1>.txt
+    print("Seleciona una opción: del 1 al 3. 0 para salir. ")
 
-print("---------------------------")
-print("-------DNS OPTIMIZER-------")
-print("---------------------------\n")
-print(
-    "1. Mostrar conexiones a host especificos"
-)  # submenu escoger nombre fichero y ubicacion. (web_<SEMESTRE>.txt)
-print(
-    "2. Exportar información de Adaptadores de red/MAC"
-)  # exportar a informacion_local<Apellido1>.csv + fecha + hora creacion
-print(
-    "3. Listar configuración de 1 adaptador de red"
-)  # mostrar sub menu para escoger si hay varios y exportar a adaptador<Apellido1>.txt
-print("Seleciona una opción: del 1 al 3. 0 para salir. ")
+    opcion = input()
 
-opcion = input()
-
-if opcion == "1":
-    menu1()
-elif opcion == "2":
-    menu2()
-elif opcion == "3":
-    menu3()
-elif opcion == "0":
-    print("Adios.")
-else:
-    print("Error....")
+    if opcion == "1":
+        menu1()
+    elif opcion == "2":
+        menu2()
+    elif opcion == "3":
+        menu3()
+    elif opcion == "0":
+        print("Adios.")
+        break
+    else:
+        print("Error....")
