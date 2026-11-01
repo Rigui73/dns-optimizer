@@ -1,4 +1,6 @@
+import csv
 import subprocess
+from datetime import datetime
 from pathlib import Path
 
 
@@ -86,8 +88,94 @@ def menu1():
             print("Escribe s para sí o n para no.")
 
 
+def obtenerAdaptadores():
+    try:
+        resultado = subprocess.run(
+            ["ipconfig", "/all"],
+            capture_output=True,
+            text=True,
+            encoding="oem",
+        )
+    except Exception as error:
+        print(f"No se pudo ejecutar ipconfig: {error}")
+        return []
+
+    adaptadores = []
+    adaptador = None
+
+    for linea in resultado.stdout.splitlines():
+        texto = linea.strip()
+
+        # Cada bloque de ipconfig comienza con un encabezado Adaptador.
+        if texto.startswith("Adaptador "):
+            if adaptador is not None:
+                adaptadores.append(adaptador)
+
+            nombre = texto.replace("Adaptador de ", "", 1).rstrip(":")
+            nombre = nombre.replace("Ethernet ", "", 1)
+            nombre = nombre.replace("LAN inalámbrica ", "", 1)
+            nombre = nombre.replace("desconocido ", "", 1)
+            adaptador = {
+                "nombre": nombre,
+                "mac": "No disponible",
+                "ip": "No configurada",
+                "mascara": "No configurada",
+                "puerta": "No configurada",
+            }
+
+        if adaptador is not None and ":" in texto:
+            etiqueta = texto.lower()
+            valor = texto.split(":")[-1].strip().split("(")[0].strip()
+
+            if "dirección física" in etiqueta or "physical address" in etiqueta:
+                if valor != "":
+                    adaptador["mac"] = valor
+            elif "ipv4" in etiqueta:
+                if valor != "":
+                    adaptador["ip"] = valor
+            elif "máscara de subred" in etiqueta or "subnet mask" in etiqueta:
+                if valor != "":
+                    adaptador["mascara"] = valor
+            elif (
+                "puerta de enlace predeterminada" in etiqueta
+                or "default gateway" in etiqueta
+            ):
+                if valor != "":
+                    adaptador["puerta"] = valor
+
+    if adaptador is not None:
+        adaptadores.append(adaptador)
+
+    return adaptadores
+
+
+def listarMAC():
+    adaptadores = obtenerAdaptadores()
+    if len(adaptadores) == 0:
+        print("No se encontraron adaptadores de red.")
+        return
+
+    nombre_csv = "informacion_localRigall.csv"
+    archivo_nuevo = not Path(nombre_csv).exists()
+    fecha_hora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    try:
+        with open(nombre_csv, "a", newline="", encoding="utf-8-sig") as archivo:
+            escritor = csv.writer(archivo)
+            if archivo_nuevo:
+                escritor.writerow(["Fecha y hora", "Adaptador", "Dirección MAC"])
+
+            for adaptador in adaptadores:
+                print(f"{adaptador['nombre']}: MAC {adaptador['mac']}")
+                escritor.writerow([fecha_hora, adaptador["nombre"], adaptador["mac"]])
+
+        print(f"Información guardada en {nombre_csv}")
+    except Exception as error:
+        print(f"No se pudo guardar el archivo CSV: {error}")
+
+
 def menu2():
-    print("menu2")
+    listarMAC()
 
 
 def menu3():
