@@ -178,8 +178,56 @@ def menu2():
     listarMAC()
 
 
+def listarAdaptadores():
+    """Muestra los adaptadores disponibles para que el usuario elija uno."""
+    adaptadores = obtenerAdaptadores()
+    if len(adaptadores) == 0:
+        print("No se encontraron adaptadores de red.")
+        return []
+
+    print("\nAdaptadores de red disponibles:")
+    for numero, adaptador in enumerate(adaptadores, start=1):
+        print(f"{numero}. {adaptador['nombre']}")
+    return adaptadores
+
+
+def exportarAdaptador(adaptadorEscogido):
+    """Muestra y guarda IP, máscara y puerta de enlace de un adaptador."""
+    lineas = [
+        f"Adaptador: {adaptadorEscogido['nombre']}",
+        f"IP: {adaptadorEscogido['ip']}",
+        f"Máscara: {adaptadorEscogido['mascara']}",
+        f"Puerta de enlace: {adaptadorEscogido['puerta']}",
+    ]
+
+    for linea in lineas:
+        print(linea)
+
+    nombre_txt = "adaptadorRigall.txt"
+    try:
+        with open(nombre_txt, "w", encoding="utf-8") as archivo:
+            for linea in lineas:
+                archivo.write(linea + "\n")
+        print(f"Configuración guardada en {nombre_txt}")
+    except Exception as error:
+        print(f"No se pudo guardar el archivo TXT: {error}")
+
+
 def menu3():
-    print("menu3")
+    """Pregunta qué adaptador se quiere consultar y guarda sus datos."""
+    adaptadores = listarAdaptadores()
+    if len(adaptadores) == 0:
+        return
+
+    seleccion = input("Selecciona el número del adaptador: ").strip()
+    if seleccion.isdigit():
+        numero = int(seleccion)
+        if numero >= 1 and numero <= len(adaptadores):
+            exportarAdaptador(adaptadores[numero - 1])
+        else:
+            print("El número no corresponde a un adaptador de la lista.")
+    else:
+        print("Debes escribir un número.")
 
 
 print("---------------------------")

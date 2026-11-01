@@ -1,0 +1,4 @@
+Adaptador: Ethernet0
+IP: 192.168.4.83
+Máscara: 255.255.252.0
+Puerta de enlace: 192.168.4.1
